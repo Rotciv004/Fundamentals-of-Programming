@@ -1,0 +1,245 @@
+from DOMAIN import Student,Grade,Discipline
+class Manage_school:
+    def __init__(self,repository):
+        self.repository = repository
+
+    def add_a_student(self,student:Student) -> bool:
+        self.repository.take_from_files()
+
+        for stud in self.repository.students_repository:
+            if student.get_id() == stud.get_id():
+                return False
+
+        self.repository.students_repository.append(student)
+
+        self.repository.put_in_files()
+
+        return True
+    def delete_a_student(self,student_id:int)->bool:
+        self.repository.take_from_files()
+        VALIDATION = False
+
+        for student in self.repository.students_repository:
+            if student.get_id() == student_id:
+                self.repository.students_repository.remove(student)
+                VALIDATION = True
+
+        if VALIDATION:
+            for grade in self.repository.grades_repository:
+                if student_id == grade.get_student_id():
+                    self.repository.grades_repository.remove(grade)
+
+        self.repository.put_in_files()
+
+        return VALIDATION
+
+    def list_all_students(self) -> list:
+        self.repository.take_from_files()
+        return self.repository.students_repository
+    def update_a_student(self, update_student:Student)->bool:
+        self.repository.take_from_files()
+
+        for student in self.repository.students_repository:
+            if student.get_id() == update_student.get_id():
+                student.set_name(update_student.get_name())
+                self.repository.put_in_files()
+                return True
+
+        return False
+
+    def search_after_a_student_by_id(self, student_id:int) -> Student:
+        self.repository.take_from_files()
+        for student in self.repository.students_repository:
+            if student.get_id() == student_id:
+                return student
+
+    def search_after_a_student_by_name(self, student_name:str)->list:
+        self.repository.take_from_files()
+        students_list = []
+
+        for student in self.repository.students_repository:
+            if student_name.lower() in student.get_name().lower():
+                students_list.append(student)
+
+        return students_list
+    def add_a_grade(self, grade:Grade)->bool:
+        self.repository.take_from_files()
+        for student in self.repository.students_repository:
+            if student.get_id() == grade.get_student_id():
+                for discipline in self.repository.disciplines_repository:
+                    if discipline.get_id() == grade.get_discipline_id():
+                        if grade.get_value() >= 0 and grade.get_value() <= 10:
+                            self.repository.grades_repository.append(grade)
+                            self.repository.put_in_files()
+                            return True
+
+        return False
+
+
+
+
+    def list_all_grades_for_a_student(self,student_id:int)->list:
+        self.repository.take_from_files()
+        grades_list = []
+
+        for grade in self.repository.grades_repository:
+            if grade.get_student_id() == student_id:
+                grades_list.append(grade)
+
+        return grades_list
+
+    def list_all_grades(self)-> list:
+        self.repository.take_from_files()
+        return self.repository.grades_repository
+
+
+    def add_a_discipline(self, discipline:Discipline)-> bool:
+        self.repository.take_from_files()
+        for dis in self.repository.disciplines_repository:
+            if dis.get_id() == discipline.get_id() or dis.get_name() == discipline.get_name():
+                return False
+
+        self.repository.disciplines_repository.append(discipline)
+        self.repository.put_in_files()
+
+        return True
+
+    def delete_a_discipline(self,discipline_id:int)->bool:
+        self.repository.take_from_files()
+        VALIDATION = False
+        for discipline in self.repository.disciplines_repository:
+            if discipline.get_id() == discipline_id:
+                self.repository.disciplines_repository.remove(discipline)
+                VALIDATION = True
+
+        for grade in self.repository.grades_repository:
+            if discipline_id == grade.get_discipline_id():
+                self.repository.grades_repository.remove(grade)
+
+        self.repository.put_in_files()
+
+        return VALIDATION
+
+    def list_all_disciplines(self)->list:
+        self.repository.take_from_files()
+        return self.repository.disciplines_repository
+
+    def update_a_discipline(self,updated_discipline:Discipline)->bool:
+        self.repository.take_from_files()
+        for discipline in self.repository.disciplines_repository:
+            if discipline.get_id() == updated_discipline.id:
+                discipline.set_name(updated_discipline.get_name())
+                self.repository.put_in_files()
+                return True
+
+        return False
+
+    def search_after_a_discipline_by_id(self,discipline_id:int) -> Discipline:
+        self.repository.take_from_files()
+        for discipline in self.repository.disciplines_repository:
+            if discipline.get_id() == discipline_id:
+                return discipline
+
+    def search_after_a_discipline_by_name(self,discipline_name:str):
+        self.repository.take_from_files()
+        disciplines_list = []
+
+        for discipline in self.repository.disciplines_repository:
+            if discipline_name.lower() in discipline.get_name().lower():
+                disciplines_list.append(discipline)
+
+        return disciplines_list
+
+    def failing_students(self)->list:
+        self.repository.take_from_files()
+        failing_students = []
+
+        for student in self.repository.students_repository:
+            for discipline in self.repository.disciplines_repository:
+                student_grades = []
+
+                for grade in self.repository.grades_repository:
+                    if grade.get_student_id() == student.get_id() and grade.get_discipline_id() == discipline.get_id():
+                        student_grades.append(grade.get_value())
+
+                if student_grades:
+                    average_grade = sum(student_grades) / len(student_grades)
+                    if average_grade < 5:
+                        failing_students.append(student)
+                        break
+
+        return failing_students
+
+    def best_students(self)->list:
+        self.repository.take_from_files()
+        students_averages = {}
+
+        for student in self.repository.students_repository:
+            total_grade = 0
+            total_disciplines = 0
+
+            for discipline in self.repository.disciplines_repository:
+                student_grades = []
+
+                for grade in self.repository.grades_repository:
+                    if grade.get_student_id() == student.get_id() and grade.get_discipline_id() == discipline.get_id():
+                        student_grades.append(grade.get_value())
+
+                if student_grades:
+                    average_grade = sum(student_grades) / len(student_grades)
+                    total_grade += average_grade
+                    total_disciplines += 1
+
+            if total_disciplines > 0:
+                students_averages[student.get_id()] = total_grade / total_disciplines
+            else:
+                students_averages[student.get_id()] = 0
+
+        sorted_student_ids = sorted(students_averages, key=students_averages.get, reverse=True)
+
+        students_averages_sorted = [student for student in self.repository.students_repository if student.get_id() in sorted_student_ids]
+
+        return students_averages_sorted
+
+
+    def disciplines_with_at_least_one_grade(self)->list:
+        self.repository.take_from_files()
+        discipline_list = []
+
+        for discipline in self.repository.disciplines_repository:
+            for grade in self.repository.grades_repository:
+                if grade.get_discipline_id() == discipline.get_id():
+                    discipline_list.append(discipline)
+
+        return discipline_list
+
+
+    def give_a_grade_to_a_student(self,grade_to_add:Grade)->bool:
+        self.repository.take_from_files()
+        VALIDATION = True
+
+        if grade_to_add.get_value() < 0 or grade_to_add.get_value() > 10:
+            VALIDATION = False
+
+        if VALIDATION:
+            VALIDATION = False
+
+            for student in self.repository.students_repository:
+                if student.get_id() == grade_to_add.get_student_id():
+                    VALIDATION = True
+                    break
+
+        if VALIDATION:
+            VALIDATION = False
+
+            for discipline in self.repository.disciplines_repository:
+                if discipline.get_id() == grade_to_add.get_discipline_id():
+                    VALIDATION = True
+                    break
+
+        if VALIDATION:
+            self.repository.grades_repository.append(grade_to_add)
+            self.repository.put_in_files()
+            return True
+        else:
+            return False
