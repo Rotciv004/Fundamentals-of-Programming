@@ -1,0 +1,8 @@
+1,Anna,I will make sure to implement a layered architecture solution
+2,John,The program is layered
+3,Betty,I did not understand layered architecture
+4,Vlad,My proposed solution does not include layerd
+5,Marius,I think I was wrong
+6,Marian,I stomack is hurt 2
+7,Cristi,My had is brock
+8,abc,I had 
