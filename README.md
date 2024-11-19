@@ -1,2 +1,2 @@
 # Fundamentals-of-Programming
-Here I have some problems solved in Python
+A collection of Python applications ranging from simple utilities to more complex projects, including a fully implemented game.
